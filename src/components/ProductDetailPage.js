@@ -2,17 +2,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Container, Typography, Card, CardContent, CardMedia, Grid } from '@mui/material';
+import { Container, Typography, Card, CardContent, CardMedia, Grid, Button, TextField } from '@mui/material';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const [food, setFood] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     axios.get(process.env.REACT_APP_BASE_LINK_TO_SERVER+`/api/foods/${id}`)
       .then(response => setFood(response.data))
       .catch(error => console.error('Error fetching food details:', error));
   }, [id]);
+
+  const handleQuantityChange = (e) => {
+    setQuantity(e.target.value);
+  };
+
+  const handleAddToCart = () => {
+    console.log(`Added ${quantity} of food item ${id} to cart`);
+    // Implement add to cart functionality here
+  };
 
   if (!food) return <div>Loading...</div>;
 
@@ -21,7 +31,7 @@ const ProductDetailPage = () => {
       <Card>
         <CardMedia
           component="img"
-          height="300"
+          height="500"
           image={food.imageUrl}
           alt={food.name}
         />
@@ -36,6 +46,28 @@ const ProductDetailPage = () => {
           <Typography variant="body2">Quantity: {food.quantity}</Typography>
           <Typography variant="body2">Food Type: {food.foodType}</Typography>
           <Typography variant="body2">Package Type: {food.packageType}</Typography>
+          <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
+            <Grid item xs={6}>
+              <TextField
+                label="Quantity"
+                type="number"
+                value={quantity}
+                onChange={handleQuantityChange}
+                inputProps={{ min: 1, max: 20 }}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleAddToCart}
+                fullWidth
+              >
+                Add to Cart
+              </Button>
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
     </Container>

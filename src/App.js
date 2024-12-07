@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import CatList from './components/CatList';
 import FoodList from './components/FoodList';
+import FoodGridView from './components/FoodGridView';
 import FeedingScheduleList from './components/FeedingScheduleList';
 import ProductDetailPage from './components/ProductDetailPage';
 
