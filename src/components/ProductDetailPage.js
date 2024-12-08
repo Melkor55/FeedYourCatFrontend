@@ -1,16 +1,18 @@
 // src/components/ProductDetailPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { Container, Typography, Card, CardContent, CardMedia, Grid, Button, TextField } from '@mui/material';
+import { CartContext } from '../contexts/CartContext';
 
-const ProductDetailPage = () => {
+const ProductDetailPage = ({ onAddToCart }) => {
   const { id } = useParams();
   const [food, setFood] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
-    axios.get(process.env.REACT_APP_BASE_LINK_TO_SERVER+`/api/foods/${id}`)
+    axios.get(process.env.REACT_APP_BASE_LINK_TO_SERVER + `/api/foods/${id}`)
       .then(response => setFood(response.data))
       .catch(error => console.error('Error fetching food details:', error));
   }, [id]);
@@ -20,8 +22,10 @@ const ProductDetailPage = () => {
   };
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} of food item ${id} to cart`);
-    // Implement add to cart functionality here
+    if (food) {
+      addToCart({ ...food, quantity: parseInt(quantity) });
+      onAddToCart({ ...food, quantity: parseInt(quantity) });
+    }
   };
 
   if (!food) return <div>Loading...</div>;

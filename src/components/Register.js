@@ -1,26 +1,27 @@
-// src/components/Login.js
+// src/components/Register.js
 import React from 'react';
 import { Container, Typography, TextField, Button, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
 
-const Login = () => {
+const Register = () => {
   return (
     <Container maxWidth="sm">
       <Box sx={{ marginTop: 8 }}>
         <Typography variant="h4" gutterBottom>
-          Login
+          Register
         </Typography>
         <TextField label="Username" fullWidth margin="normal" />
         <TextField label="Password" type="password" fullWidth margin="normal" />
+        <TextField label="Email" type="email" fullWidth margin="normal" />
+        <TextField label="Country" fullWidth margin="normal" />
+        <TextField label="County" fullWidth margin="normal" />
+        <TextField label="City" fullWidth margin="normal" />
+        <TextField label="Address" fullWidth margin="normal" />
         <Button variant="contained" color="primary" fullWidth>
-          Login
-        </Button>
-        <Button variant="text" color="secondary" fullWidth component={Link} to="/register">
-          Don't have an account? Register
+          Register
         </Button>
       </Box>
     </Container>
   );
 };
 
-export default Login;
+export default Register;

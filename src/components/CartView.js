@@ -1,6 +1,7 @@
 // src/components/CartView.js
 import React, { useContext } from 'react';
 import { Container, Typography, Card, CardContent, CardMedia, Grid, Box, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { CartContext } from '../contexts/CartContext';
 
 const CartView = () => {
@@ -18,41 +19,46 @@ const CartView = () => {
           <>
             {cart.map((item) => (
               <Card key={item.id} sx={{ marginBottom: 2 }}>
-                <CardMedia
-                  component="img"
-                  sx={{ width: 150 }}
-                  image={item.imageUrl}
-                  alt={item.name}
-                />
-                <CardContent>
-                  <Typography variant="h5" component="div">
-                    {item.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {item.description}
-                  </Typography>
-                  <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
-                    <Grid item xs={3}>
-                      <Typography variant="body2">Quantity: {item.quantity}</Typography>
+                <Link to={`/foods/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <CardMedia
+                    component="img"
+                    sx={{ width: 150 }}
+                    image={item.imageUrl}
+                    alt={item.name}
+                  />
+                  <CardContent>
+                    <Typography variant="h5" component="div">
+                      {item.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {item.description}
+                    </Typography>
+                    <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
+                      <Grid item xs={3}>
+                        <Typography variant="body2">Quantity: {item.quantity}</Typography>
+                      </Grid>
+                      <Grid item xs={3}>
+                        <Typography variant="body2">Price per product: ${item.price}</Typography>
+                      </Grid>
+                      <Grid item xs={3}>
+                        <Typography variant="body2">Total Price: ${(item.price * item.quantity).toFixed(2)}</Typography>
+                      </Grid>
+                      <Grid item xs={3}>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            removeFromCart(item.id);
+                          }}
+                          fullWidth
+                        >
+                          Remove
+                        </Button>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={3}>
-                      <Typography variant="body2">Price per product: ${item.price}</Typography>
-                    </Grid>
-                    <Grid item xs={3}>
-                      <Typography variant="body2">Total Price: ${(item.price * item.quantity).toFixed(2)}</Typography>
-                    </Grid>
-                    <Grid item xs={3}>
-                      <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() => removeFromCart(item.id)}
-                        fullWidth
-                      >
-                        Remove
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </CardContent>
+                  </CardContent>
+                </Link>
               </Card>
             ))}
             <Box sx={{ marginTop: 4, display: 'flex', justifyContent: 'space-between' }}>
