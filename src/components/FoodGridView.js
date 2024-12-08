@@ -1,23 +1,14 @@
 // src/components/FoodGridView.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardMedia, Typography, Grid, Button, TextField, MenuItem } from '@mui/material';
 import FoodFilter from './FoodFilter';
+import { CartContext } from '../contexts/CartContext';
 
 const FoodGridView = ({foods}) => {
-  // const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
-
-  // const fetchFoods = (filters = {}) => {
-  //   axios.get(process.env.REACT_APP_BASE_LINK_TO_SERVER+'/api/foods', { params: filters })
-  //     .then(response => setFoods(response.data))
-  //     .catch(error => console.error('Error fetching foods:', error));
-  // };
-
-  // useEffect(() => {
-  //   fetchFoods();
-  // }, []);
+  const { addToCart } = useContext(CartContext);
 
   const handleQuantityChange = (id, value) => {
     setQuantities({ ...quantities, [id]: value });
@@ -26,12 +17,12 @@ const FoodGridView = ({foods}) => {
   const handleAddToCart = (id) => {
     const quantity = quantities[id] || 1;
     console.log(`Added ${quantity} of food item ${id} to cart`);
-    // Implement add to cart functionality here
+    const food = foods.find((food) => food.id === id);
+    addToCart({ ...food, quantity });
   };
 
   return (
     <Grid container spacing={2}>
-      {/* <FoodFilter onFilter={fetchFoods} /> */}
         {foods.map(food => (
           <Grid item xs={12} sm={6} md={4} key={food.id}>
             <Card>
@@ -56,16 +47,25 @@ const FoodGridView = ({foods}) => {
                         label="Quantity"
                         type="number"
                         value={quantities[food.id] || 1}
-                        onChange={(e) => handleQuantityChange(food.id, e.target.value)}
+                        onChange={(e) => {
+                          let value = Math.max(1, Math.min(20, e.target.value));
+                          handleQuantityChange(food.id, value);
+                        }}
                         inputProps={{ min: 1, max: 20 }}
                         fullWidth
+                        onClick={(e) => {
+                          e.preventDefault();
+                        }}
                       />
                     </Grid>
                     <Grid item xs={6}>
                       <Button
                         variant="contained"
                         color="success"
-                        onClick={() => handleAddToCart(food.id)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleAddToCart(food.id);
+                        }}
                         fullWidth
                       >
                         Add to Cart

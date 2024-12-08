@@ -1,0 +1,730 @@
+// src/components/FoodList.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import FoodFilter from './FoodFilter';
+
+const FoodList = () => {
+  const [foods, setFoods] = useState([]);
+
+  const fetchFoods = (filters = {}) => {
+    axios.get(process.env.REACT_APP_BASE_LINK_TO_SERVER+'/api/foods', { params: filters })
+        .then(response => setFoods(response.data))
+        .catch(error => console.error('Error fetching foods:', error));
+    };
+
+    useEffect(() => {
+      fetchFoods();
+    }, []);
+
+    return (
+      <div>
+        <h1>Food List</h1>
+        <FoodFilter onFilter={fetchFoods} />
+        <ul>
+          {foods.map(food => (
+            <li key={food.id}>
+              <Link to={`/foods/${food.id}`}>{food.name} - {food.brand}</Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  export default FoodList;
+
+
+
+
+// src/components/FoodList.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardMedia, Typography, Grid, Button, TextField, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+
+const FoodList = () => {
+  const [foods, setFoods] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const [view, setView] = useState('list');
+
+  const fetchFoods = () => {
+    axios.get(`${process.env.REACT_APP_BASE_LINK_TO_SERVER}/api/foods`)
+      .then(response => setFoods(response.data))
+      .catch(error => console.error('Error fetching foods:', error));
+  };
+
+  useEffect(() => {
+    fetchFoods();
+  }, []);
+
+  const handleQuantityChange = (id, value) => {
+    setQuantities({ ...quantities, [id]: value });
+  };
+
+  const handleAddToCart = (id) => {
+    const quantity = quantities[id] || 1;
+    console.log(`Added ${quantity} of food item ${id} to cart`);
+    // Implement add to cart functionality here
+  };
+
+  const handleViewChange = (event, nextView) => {
+    if (nextView !== null) {
+      setView(nextView);
+    }
+  };
+
+  return (
+    <div>
+      <ToggleButtonGroup
+        value={view}
+        exclusive
+        onChange={handleViewChange}
+        aria-label="view toggle"
+        sx={{ marginBottom: 2 }}
+      >
+        <ToggleButton value="list" aria-label="list view" disabled={view === 'list'}>
+          <ViewListIcon />
+        </ToggleButton>
+        <ToggleButton value="grid" aria-label="grid view" component={Link} to="/FoodGridView">
+          <ViewModuleIcon />
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <Stack spacing={2}>
+        {foods.map(food => (
+          <Card key={food.id}>
+            <Link to={`/foods/${food.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <CardMedia
+                component="img"
+                height="140"
+                image={food.imageUrl}
+                alt={food.name}
+              />
+              <CardContent>
+                <Typography variant="h5" component="div">
+                  {food.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" noWrap>
+                  {food.description}
+                </Typography>
+                <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Quantity"
+                      type="number"
+                      value={quantities[food.id] || 1}
+                      onChange={(e) => handleQuantityChange(food.id, e.target.value)}
+                      inputProps={{ min: 1, max: 20 }}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAddToCart(food.id);
+                      }}
+                      fullWidth
+                    >
+                      Add to Cart
+                    </Button>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Link>
+          </Card>
+        ))}
+      </Stack>
+    </div>
+  );
+};
+
+export default FoodList;
+
+
+
+
+// src/components/FoodListPage.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardMedia, Typography, Grid, Button, TextField, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import FoodFilter from './FoodFilter';
+
+const FoodListPage = () => {
+  const [foods, setFoods] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const [view, setView] = useState('list');
+
+  const fetchFoods = (filters = {}) => {
+    axios.get(`${process.env.REACT_APP_BASE_LINK_TO_SERVER}/api/foods`, { params: filters })
+      .then(response => setFoods(response.data))
+      .catch(error => console.error('Error fetching foods:', error));
+  };
+
+  useEffect(() => {
+    fetchFoods();
+  }, []);
+
+  const handleQuantityChange = (id, value) => {
+    setQuantities({ ...quantities, [id]: value });
+  };
+
+  const handleAddToCart = (id) => {
+    const quantity = quantities[id] || 1;
+    console.log(`Added ${quantity} of food item ${id} to cart`);
+    // Implement add to cart functionality here
+  };
+
+  const handleViewChange = (event, nextView) => {
+    if (nextView !== null) {
+      setView(nextView);
+    }
+  };
+
+  const preventLinkNavigation = (event) => {
+    event.stopPropagation();
+  };
+
+  return (
+    <div>
+      <ToggleButtonGroup
+        value={view}
+        exclusive
+        onChange={handleViewChange}
+        aria-label="view toggle"
+        sx={{ marginBottom: 2 }}
+      >
+        <ToggleButton value="list" aria-label="list view" disabled={view === 'list'}>
+          <ViewListIcon />
+        </ToggleButton>
+        <ToggleButton value="grid" aria-label="grid view" component={Link} to="/foodlistgridview">
+          <ViewModuleIcon />
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <FoodFilter onFilter={fetchFoods} />
+      {view === 'list' ? (
+        <Stack spacing={2}>
+          {foods.map(food => (
+            <Card key={food.id}>
+              <Link to={`/foods/${food.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={food.imageUrl}
+                  alt={food.name}
+                />
+                <CardContent>
+                  <Typography variant="h5" component="div">
+                    {food.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" noWrap>
+                    {food.description}
+                  </Typography>
+                  <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
+                    <Grid item xs={6}>
+                      <TextField
+                        label="Quantity"
+                        type="number"
+                        value={quantities[food.id] || 1}
+                        onChange={(e) => handleQuantityChange(food.id, e.target.value)}
+                        inputProps={{ min: 1, max: 20 }}
+                        fullWidth
+                        onClick={preventLinkNavigation}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAddToCart(food.id);
+                        }}
+                        fullWidth
+                      >
+                        Add to Cart
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Link>
+            </Card>
+          ))}
+        </Stack>
+      ) : (
+        <Grid container spacing={2}>
+          {foods.map(food => (
+            <Grid item xs={12} sm={6} md={4} key={food.id}>
+              <Card>
+                <Link to={`/foods/${food.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={food.imageUrl}
+                    alt={food.name}
+                  />
+                  <CardContent>
+                    <Typography variant="h5" component="div">
+                      {food.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" noWrap>
+                      {food.description}
+                    </Typography>
+                    <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
+                      <Grid item xs={6}>
+                        <TextField
+                          label="Quantity"
+                          type="number"
+                          value={quantities[food.id] || 1}
+                          onChange={(e) => handleQuantityChange(food.id, e.target.value)}
+                          inputProps={{ min: 1, max: 20 }}
+                          fullWidth
+                          onClick={preventLinkNavigation}
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAddToCart(food.id);
+                          }}
+                          fullWidth
+                        >
+                          Add to Cart
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Link>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </div>
+  );
+};
+
+export default FoodListPage;
+
+
+
+
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Container, Typography, IconButton } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import LogoutIcon from '@mui/icons-material/Logout';
+import CatList from './components/CatList';
+import FoodListPage from './components/FoodListPage';
+import FeedingScheduleList from './components/FeedingScheduleList';
+import ProductDetailPage from './components/ProductDetailPage';
+import Login from './components/Login';
+import CartView from './components/CartView';
+
+const App = () => {
+  return (
+    <Router>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            FeedYourCat
+          </Typography>
+          <Button color="inherit" component={Link} to="/cats">Cats</Button>
+          <Button color="inherit" component={Link} to="/foods">Foods</Button>
+          <Button color="inherit" component={Link} to="/feeding-schedules">Feeding Schedules</Button>
+          <IconButton color="inherit" component={Link} to="/cart">
+            <ShoppingCartIcon />
+          </IconButton>
+          <IconButton color="inherit" component={Link} to="/login">
+            <LogoutIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Container sx={{ marginTop: 2 }}>
+        <Routes>
+          <Route path="/cats" element={<CatList />} />
+          <Route path="/foods" element={<FoodListPage />} />
+          <Route path="/feeding-schedules" element={<FeedingScheduleList />} />
+          <Route path="/foods/:id" element={<ProductDetailPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/cart" element={<CartView />} />
+        </Routes>
+      </Container>
+    </Router>
+  );
+};
+
+export default App;
+
+
+
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Container, Typography, IconButton } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import LogoutIcon from '@mui/icons-material/Logout';
+import CatList from './components/CatList';
+import FoodListPage from './components/FoodListPage';
+import FeedingScheduleList from './components/FeedingScheduleList';
+import ProductDetailPage from './components/ProductDetailPage';
+import Login from './components/Login';
+import CartView from './components/CartView';
+import { CartProvider } from './contexts/CartContext';
+
+const App = () => {
+  return (
+    <CartProvider>
+      <Router>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              FeedYourCat
+            </Typography>
+            <Button color="inherit" component={Link} to="/cats">Cats</Button>
+            <Button color="inherit" component={Link} to="/foods">Foods</Button>
+            <Button color="inherit" component={Link} to="/feeding-schedules">Feeding Schedules</Button>
+            <IconButton color="inherit" component={Link} to="/cart">
+              <ShoppingCartIcon />
+            </IconButton>
+            <IconButton color="inherit" component={Link} to="/login">
+              <LogoutIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Container sx={{ marginTop: 2 }}>
+          <Routes>
+            <Route path="/cats" element={<CatList />} />
+            <Route path="/foods" element={<FoodListPage />} />
+            <Route path="/feeding-schedules" element={<FeedingScheduleList />} />
+            <Route path="/foods/:id" element={<ProductDetailPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/cart" element={<CartView />} />
+          </Routes>
+        </Container>
+      </Router>
+    </CartProvider>
+  );
+};
+
+export default App;
+
+
+
+
+// src/components/FoodListPage.js
+import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardMedia, Typography, Grid, Button, TextField, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import FoodFilter from './FoodFilter';
+import { CartContext } from '../contexts/CartContext';
+
+const FoodListPage = () => {
+  const [foods, setFoods] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const [view, setView] = useState('list');
+  const { addToCart } = useContext(CartContext);
+
+  const fetchFoods = (filters = {}) => {
+    axios.get(`${process.env.REACT_APP_BASE_LINK_TO_SERVER}/api/foods`, { params: filters })
+      .then(response => setFoods(response.data))
+      .catch(error => console.error('Error fetching foods:', error));
+  };
+
+  useEffect(() => {
+    fetchFoods();
+  }, []);
+
+  const handleQuantityChange = (id, value) => {
+    setQuantities({ ...quantities, [id]: value });
+  };
+
+  const handleAddToCart = (id) => {
+    const quantity = quantities[id] || 1;
+    const food = foods.find((food) => food.id === id);
+    addToCart({ ...food, quantity });
+  };
+
+  const handleViewChange = (event, nextView) => {
+    if (nextView !== null) {
+      setView(nextView);
+    }
+  };
+
+  const preventLinkNavigation = (event) => {
+    event.stopPropagation();
+  };
+
+  return (
+    <div>
+      <ToggleButtonGroup
+        value={view}
+        exclusive
+        onChange={handleViewChange}
+        aria-label="view toggle"
+        sx={{ marginBottom: 2 }}
+      >
+        <ToggleButton value="list" aria-label="list view" disabled={view === 'list'}>
+          <ViewListIcon />
+        </ToggleButton>
+        <ToggleButton value="grid" aria-label="grid view" component={Link} to="/foodlistgridview">
+          <ViewModuleIcon />
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <FoodFilter onFilter={fetchFoods} />
+      {view === 'list' ? (
+        <Stack spacing={2}>
+          {foods.map(food => (
+            <Card key={food.id}>
+              <Link to={`/foods/${food.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={food.imageUrl}
+                  alt={food.name}
+                />
+                <CardContent>
+                  <Typography variant="h5" component="div">
+                    {food.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" noWrap>
+                    {food.description}
+                  </Typography>
+                  <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
+                    <Grid item xs={6}>
+                      <TextField
+                        label="Quantity"
+                        type="number"
+                        value={quantities[food.id] || 1}
+                        onChange={(e) => handleQuantityChange(food.id, e.target.value)}
+                        inputProps={{ min: 1, max: 20 }}
+                        fullWidth
+                        onClick={preventLinkNavigation}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAddToCart(food.id);
+                        }}
+                        fullWidth
+                      >
+                        Add to Cart
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Link>
+            </Card>
+          ))}
+        </Stack>
+      ) : (
+        <Grid container spacing={2}>
+          {foods.map(food => (
+            <Grid item xs={12} sm={6} md={4} key={food.id}>
+              <Card>
+                <Link to={`/foods/${food.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={food.imageUrl}
+                    alt={food.name}
+                  />
+                  <CardContent>
+                    <Typography variant="h5" component="div">
+                      {food.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" noWrap>
+                      {food.description}
+                    </Typography>
+                    <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
+                      <Grid item xs={6}>
+                        <TextField
+                          label="Quantity"
+                          type="number"
+                          value={quantities[food.id] || 1}
+                          onChange={(e) => handleQuantityChange(food.id, e.target.value)}
+                          inputProps={{ min: 1, max: 20 }}
+                          fullWidth
+                          onClick={preventLinkNavigation}
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAddToCart(food.id);
+                          }}
+                          fullWidth
+                        >
+                          Add to Cart
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Link>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </div>
+  );
+};
+
+export default FoodListPage;
+
+
+
+// src/App.js
+import React, { useContext } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Container, Typography, IconButton, Badge } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import LogoutIcon from '@mui/icons-material/Logout';
+import CatList from './components/CatList';
+import FoodListPage from './components/FoodListPage';
+import FeedingScheduleList from './components/FeedingScheduleList';
+import ProductDetailPage from './components/ProductDetailPage';
+import Login from './components/Login';
+import CartView from './components/CartView';
+import { CartProvider, CartContext } from './contexts/CartContext';
+
+const App = () => {
+  const { getTotalItems } = useContext(CartContext);
+
+  return (
+    <CartProvider>
+      <Router>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              FeedYourCat
+            </Typography>
+            <Button color="inherit" component={Link} to="/cats">Cats</Button>
+            <Button color="inherit" component={Link} to="/foods">Foods</Button>
+            <Button color="inherit" component={Link} to="/feeding-schedules">Feeding Schedules</Button>
+            <IconButton color="inherit" component={Link} to="/cart">
+              <Badge badgeContent={getTotalItems()} color="secondary">
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+            <IconButton color="inherit" component={Link} to="/login">
+              <LogoutIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Container sx={{ marginTop: 2 }}>
+          <Routes>
+            <Route path="/cats" element={<CatList />} />
+            <Route path="/foods" element={<FoodListPage />} />
+            <Route path="/feeding-schedules" element={<FeedingScheduleList />} />
+            <Route path="/foods/:id" element={<ProductDetailPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/cart" element={<CartView />} />
+          </Routes>
+        </Container>
+      </Router>
+    </CartProvider>
+  );
+};
+
+export default App;
+
+
+
+
+
+
+// src/components/CartView.js
+import React, { useContext } from 'react';
+import { Container, Typography, Card, CardContent, CardMedia, Grid, Box, Button } from '@mui/material';
+import { CartContext } from '../contexts/CartContext';
+
+const CartView = () => {
+  const { cart, removeFromCart, emptyCart } = useContext(CartContext);
+
+  return (
+    <Container maxWidth="md">
+      <Box sx={{ marginTop: 8 }}>
+        <Typography variant="h4" gutterBottom>
+          Cart
+        </Typography>
+        {cart.length === 0 ? (
+          <Typography variant="body1">Your cart is empty.</Typography>
+        ) : (
+          <>
+            {cart.map((item) => (
+              <Card key={item.id} sx={{ marginBottom: 2 }}>
+                <CardMedia
+                  component="img"
+                  sx={{ width: 150 }}
+                  image={item.imageUrl}
+                  alt={item.name}
+                />
+                <CardContent>
+                  <Typography variant="h5" component="div">
+                    {item.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {item.description}
+                  </Typography>
+                  <Grid container spacing={1} alignItems="center" sx={{ marginTop: 2 }}>
+                    <Grid item xs={3}>
+                      <Typography variant="body2">Quantity: {item.quantity}</Typography>
+                    </Grid>
+                    <Grid item xs={3}>
+                      <Typography variant="body2">Price per product: ${item.price}</Typography>
+                    </Grid>
+                    <Grid item xs={3}>
+                      <Typography variant="body2">Total Price: ${(item.price * item.quantity).toFixed(2)}</Typography>
+                    </Grid>
+                    <Grid item xs={3}>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => removeFromCart(item.id)}
+                        fullWidth
+                      >
+                        Remove
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            ))}
+            <Box sx={{ marginTop: 4, display: 'flex', justifyContent: 'space-between' }}>
+              <Button variant="contained" color="primary" onClick={() => console.log('Proceed to Payment')}>
+                Proceed to Payment
+              </Button>
+              <Button variant="contained" color="secondary" onClick={emptyCart}>
+                Empty Cart
+              </Button>
+            </Box>
+          </>
+        )}
+      </Box>
+    </Container>
+  );
+};
+
+export default CartView;
